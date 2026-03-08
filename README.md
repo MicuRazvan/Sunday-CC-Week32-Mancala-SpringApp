@@ -1,4 +1,4 @@
-# Sunday CC Week32 Memory
+# Sunday CC Week32 Mancala
 
 ## Context
 I lost a bet with a friend and he challenged me that for the next 52 weeks, during weekends I need to create from scratch a new project.
