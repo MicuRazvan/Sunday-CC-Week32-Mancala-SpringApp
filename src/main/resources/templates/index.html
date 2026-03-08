@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Spring Mancala</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2c3e50; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .game-container { background: #8d6e63; padding: 30px; border-radius: 50px; border: 10px solid #5d4037; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .board { display: flex; align-items: center; gap: 20px; }
+        .pits-container { display: flex; flex-direction: column; gap: 20px; }
+        .row { display: flex; gap: 15px; }
+        .pit, .store { background: #4e342e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; cursor: pointer; border: none; color: white; transition: transform 0.2s, background 0.3s; box-shadow: inset 0 5px 10px rgba(0,0,0,0.5); }
+        .pit { width: 70px; height: 70px; }
+        .pit:hover:not(:disabled) { transform: scale(1.1); background: #6d4c41; }
+        .pit:disabled { cursor: default; opacity: 0.8; }
+        .store { width: 80px; height: 180px; border-radius: 40px; cursor: default; }
+        .active-turn { color: #f1c40f; text-shadow: 0 0 10px #f1c40f; }
+        .winner-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .btn { padding: 10px 25px; font-size: 18px; border-radius: 5px; border: none; cursor: pointer; margin-top: 20px; background: #e67e22; color: white; }
+        .btn:hover { background: #d35400; }
+        .status-bar { margin-bottom: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="status-bar">
+    <h1>Panda Mancala</h1>
+    <h2 th:classappend="${game.currentPlayer == 1 ? 'active-turn' : ''}" th:text="'Player 1' + (game.currentPlayer == 1 ? ' (Your Turn)' : '')"></h2>
+    <h2 th:classappend="${game.currentPlayer == 2 ? 'active-turn' : ''}" th:text="'Player 2' + (game.currentPlayer == 2 ? ' (Your Turn)' : '')"></h2>
+</div>
+
+<div class="game-container">
+    <div class="board">
+        <!-- Player 2 Store (Index 13) -->
+        <div class="store" th:text="${game.pits[13]}">0</div>
+
+        <div class="pits-container">
+            <!-- Player 2 Pits (Index 12 down to 7) -->
+            <div class="row">
+                <form th:each="i : ${#numbers.sequence(12, 7)}" action="/move" method="post">
+                    <input type="hidden" name="pitIndex" th:value="${i}" />
+                    <button type="submit" class="pit"
+                            th:text="${game.pits[i]}"
+                            th:disabled="${game.currentPlayer != 2 || game.pits[i] == 0 || game.gameOver}">
+                    </button>
+                </form>
+            </div>
+            <!-- Player 1 Pits (Index 0 to 5) -->
+            <div class="row">
+                <form th:each="i : ${#numbers.sequence(0, 5)}" action="/move" method="post">
+                    <input type="hidden" name="pitIndex" th:value="${i}" />
+                    <button type="submit" class="pit"
+                            th:text="${game.pits[i]}"
+                            th:disabled="${game.currentPlayer != 1 || game.pits[i] == 0 || game.gameOver}">
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Player 1 Store (Index 6) -->
+        <div class="store" th:text="${game.pits[6]}">0</div>
+    </div>
+</div>
+
+<form action="/reset" method="post">
+    <button type="submit" class="btn">Start New Game</button>
+</form>
+
+<!-- Winner Screen -->
+<div class="winner-overlay" th:if="${game.gameOver}">
+    <h1 style="font-size: 60px; color: #f1c40f;" th:text="${game.winner}">Winner!</h1>
+    <form action="/reset" method="post">
+        <button type="submit" class="btn">Play Again</button>
+    </form>
+</div>
+
+</body>
+</html>
